@@ -956,6 +956,7 @@ main {
 
   margin: 0;
   padding: 0;
+  padding-top: 20px;
 }
 
 .social__comment {
@@ -975,7 +976,6 @@ main {
 .social__comment-count {
   padding-top: 20px;
   padding-left: 65px;
-  padding-bottom: 20px;
 }
 
 .social__comments-loader {
