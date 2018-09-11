@@ -1,7 +1,7 @@
 # Личный проект «Кекстаграм» [![Build status][travis-image]][travis-url]
 
 * Студент: [Три Десятова](https://up.htmlacademy.ru/javascript/15/user/345843).
-* Наставник: `Неизвестно`.
+* Наставник: `Неизвестный Енот`.
 
 ---
 
