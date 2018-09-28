@@ -42,6 +42,7 @@ var bigPictureClose = document.querySelector('#picture-cancel');
 var fileUpload = document.querySelector('#upload-file');
 var imgUpload = document.querySelector('.img-upload__overlay');
 var uploadCancel = document.querySelector('#upload-cancel');
+var effectLevel = document.querySelector('.effect-level');
 var effectLevelPin = document.querySelector('.effect-level__pin');
 var effectLevelDepth = document.querySelector('.effect-level__depth');
 var imgUploadPreview = document.querySelector('.img-upload__preview');
@@ -56,6 +57,9 @@ var effectHeat = document. querySelector('#effect-heat');
 var scaleControlSmaller = document.querySelector('.scale__control--smaller');
 var scaleControlBigger = document.querySelector('.scale__control--bigger');
 var scaleControlValue = document.querySelector('.scale__control--value');
+var textDescription = document.querySelector('.text__description');
+var textHashtags = document.querySelector('.text__hashtags');
+var uploadSubmit = document.querySelector('#upload-submit');
 
 
 /* Вспомогательные функции
@@ -134,6 +138,20 @@ var makeElement = function (tagName, className, text) {
   }
 
   return element;
+};
+
+
+// Ищем дубль в массиве
+var searchDuplicate = function (elem, arr) {
+  var dubl = 0;
+
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i] === elem) {
+      dubl += 1;
+    }
+  }
+
+  return dubl;
 };
 
 
@@ -262,8 +280,12 @@ var onBigPictureCloseEscKeydown = function (evt) {
 
 // Закрытие формы редактирования изображения
 var closeImgUpload = function () {
-  imgUpload.classList.add('hidden');
-  fileUpload.reset();
+  var focused = document.activeElement;
+
+  if (focused !== textDescription && focused !== textHashtags) {
+    imgUpload.classList.add('hidden');
+    fileUpload.reset();
+  }
 };
 
 
@@ -285,20 +307,26 @@ var openImgUpload = function () {
 var addEffects = function () {
   if (effectNone.checked) {
     imgPreview.className = '';
+    effectLevel.classList.add('hidden');
   } else if (effectChrome.checked) {
     imgPreview.className = '';
+    effectLevel.classList.remove('hidden');
     imgPreview.classList.add('effects__preview--chrome');
   } else if (effectSepia.checked) {
     imgPreview.className = '';
+    effectLevel.classList.remove('hidden');
     imgPreview.classList.add('effects__preview--sepia');
   } else if (effectMarvin.checked) {
     imgPreview.className = '';
+    effectLevel.classList.remove('hidden');
     imgPreview.classList.add('effects__preview--marvin');
   } else if (effectPhobos.checked) {
     imgPreview.className = '';
+    effectLevel.classList.remove('hidden');
     imgPreview.classList.add('effects__preview--phobos');
-  } else {
+  } else if (effectHeat.checked) {
     imgPreview.className = '';
+    effectLevel.classList.remove('hidden');
     imgPreview.classList.add('effects__preview--heat');
   }
 };
@@ -331,6 +359,35 @@ var scaleBigger = function () {
     value += 25;
     imgPreview.removeAttribute('style');
     scaleControlValue.value = value + '%';
+  }
+};
+
+
+// Валидируем хэштеги
+var validateHasgtags = function () {
+  var userHashtags = document.querySelector('.text__hashtags').value;
+  var splitHashtags = userHashtags.split(' ');
+
+  if (splitHashtags.length > 5) {
+    textHashtags.setCustomValidity('Нельзя указать больше пяти хэш-тегов');
+  }
+
+  for (var i = 0; i < splitHashtags.length; i++) {
+    var currentHashtag = splitHashtags[i].toLowerCase();
+    var sameHashtags = searchDuplicate(currentHashtag, splitHashtags);
+
+    if (sameHashtags > 1) {
+      textHashtags.setCustomValidity('Один и тот же хэш-тег не может быть использован дважды');
+    }
+    if (currentHashtag[0] !== '#') {
+      textHashtags.setCustomValidity('Хэш-тег должен начинаться с символа #');
+    }
+    if (currentHashtag.length < 2) {
+      textHashtags.setCustomValidity('Хэш-тег не может состоять только из одного символа');
+    }
+    if (currentHashtag.length > 20) {
+      textHashtags.setCustomValidity('Максимальная длина одного хэш-тега — 20 символов, включая решётку');
+    }
   }
 };
 
@@ -376,6 +433,15 @@ scaleControlSmaller.addEventListener('click', function () {
 scaleControlBigger.addEventListener('click', function () {
   scaleBigger();
 });
+
+uploadSubmit.addEventListener('click', function () {
+  validateHasgtags();
+});
+
+textHashtags.addEventListener('input', function () {
+  textHashtags.setCustomValidity('');
+});
+
 
 document.addEventListener('keydown', onBigPictureCloseEscKeydown);
 document.addEventListener('keydown', onImgUploadCloseEscKeydown);
