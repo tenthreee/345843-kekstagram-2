@@ -45,6 +45,7 @@ var uploadCancel = document.querySelector('#upload-cancel');
 var effectLevel = document.querySelector('.effect-level');
 var effectLevelPin = document.querySelector('.effect-level__pin');
 var effectLevelDepth = document.querySelector('.effect-level__depth');
+var effectLevelValue = document.querySelector('.effect-level__value');
 var imgUploadPreview = document.querySelector('.img-upload__preview');
 var imgPreview = imgUploadPreview.querySelector('img');
 var effectsList = document.querySelector('.effects__list');
@@ -300,6 +301,10 @@ var onImgUploadCloseEscKeydown = function (evt) {
 // Открытие формы редактирования изображения
 var openImgUpload = function () {
   imgUpload.classList.remove('hidden');
+  effectLevel.classList.add('hidden');
+  effectLevelDepth.setAttribute('style', 'width:100%');
+  effectLevelPin.setAttribute('style', 'left:100%');
+  effectLevelValue.setAttribute('value', '100');
 };
 
 
@@ -328,6 +333,28 @@ var addEffects = function () {
     imgPreview.className = '';
     effectLevel.classList.remove('hidden');
     imgPreview.classList.add('effects__preview--heat');
+  }
+};
+
+
+// Что происходит при перетаскивании
+var movePin = function () {
+  var level = parseInt(effectLevelPin.getAttribute('left'));
+  effectLevelValue.setAttribute('value', level);
+  var filterValue = level / 100;
+
+  if (effectChrome.checked) {
+    imgPreview.setAttribute('style', 'filter:grayscale(' + filterValue + ')');
+  } else if (effectSepia.checked) {
+    imgPreview.setAttribute('style', 'filter:sepia(' + filterValue + ')');
+  } else if (effectMarvin.checked) {
+    imgPreview.setAttribute('style', 'filter:invert(' + level + '%)');
+  } else if (effectPhobos.checked) {
+    filterValue = level * 5 / 100;
+    imgPreview.setAttribute('style', 'filter:blur(' + filterValue + 'px)');
+  } else if (effectHeat.checked) {
+    filterValue = level * 3 / 100;
+    imgPreview.setAttribute('style', 'filter:brightness(' + filterValue + ')');
   }
 };
 
@@ -440,6 +467,54 @@ uploadSubmit.addEventListener('click', function () {
 
 textHashtags.addEventListener('input', function () {
   textHashtags.setCustomValidity('');
+});
+
+effectLevelPin.addEventListener('mousedown', function (evt) {
+  evt.preventDefault();
+
+  // var dragged = false;
+
+  var startCoords = {
+    x: evt.clientX,
+    y: evt.clientY
+  };
+
+  // var limits = {
+  //   top:
+  //   bottom:
+  //   right:
+  //   left:
+  // };
+
+  var onMouseMove = function (moveEvt) {
+    moveEvt.preventDefault();
+
+    var shift = {
+      x: startCoords.x - moveEvt.clientX,
+      y: startCoords.y - moveEvt.clientY
+    };
+
+    startCoords = {
+      x: moveEvt.clientX,
+      y: moveEvt.clientY
+    };
+
+    effectLevelPin.style.left = (effectLevelPin.offsetLeft - shift.x) + 'px';
+  };
+
+  var onMouseUp = function (upEvt) {
+    upEvt.preventDefault();
+
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+  };
+
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
+});
+
+effectLevelPin.addEventListener('mouseup', function () {
+  movePin();
 });
 
 
